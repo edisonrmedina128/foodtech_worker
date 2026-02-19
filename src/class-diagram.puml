@@ -1,0 +1,54 @@
+@startuml
+skinparam style strictuml
+skinparam classAttributeIconSize 0
+left to right direction
+
+class FoodEvent {
+  +eventId: String
+  +eventType: String
+  +payload: String
+  +timestamp: LocalDateTime
+}
+
+interface EventPublisherPort {
+  +publish(event: FoodEvent): void
+}
+
+class RabbitMqEventPublisher {
+  -rabbitTemplate: RabbitTemplate
+  -exchange: String
+  -routingKey: String
+  +publish(event: FoodEvent): void
+}
+
+class RabbitMqConfig {
+  -queueName: String
+  -exchange: String
+  -routingKey: String
+  +queue(): Queue
+  +exchange(): DirectExchange
+  +binding(queue: Queue, exchange: DirectExchange): Binding
+  +jsonMessageConverter(): MessageConverter
+  +rabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate
+  +rabbitAdmin(connectionFactory: ConnectionFactory): RabbitAdmin
+}
+
+class ProcessEventUseCase {
+  +process(event: FoodEvent): void
+}
+
+class TestEventController
+class RabbitDebugController {
+  +publish(body: Map): FoodEvent
+  +queueStats(): Map
+}
+
+RabbitMqEventPublisher ..|> EventPublisherPort : implements
+ProcessEventUseCase --> EventPublisherPort : depends on
+TestEventController --> ProcessEventUseCase : calls
+RabbitDebugController --> EventPublisherPort : calls
+EventPublisherPort --> FoodEvent : uses
+RabbitMqEventPublisher --> FoodEvent : sends
+RabbitMqConfig ..> RabbitTemplate : creates/configures
+
+@enduml
