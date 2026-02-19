@@ -15,7 +15,7 @@ public class OutboxScheduler {
 
     @Scheduled(fixedRate = 3000) // Runs every 3 seconds
     public void processOutbox() {
-        // log.debug("Running outbox scheduler..."); // Commented out to reduce noise
+        log.debug("Running outbox scheduler...");
         processOutboxUseCase.processOutboxEvents();
     }
 }

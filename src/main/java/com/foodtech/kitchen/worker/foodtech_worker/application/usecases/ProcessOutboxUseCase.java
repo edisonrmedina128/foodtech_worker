@@ -28,7 +28,7 @@ public class ProcessOutboxUseCase {
             return;
         }
 
-        log.info("Found {} pending outbox events", pendingEvents.size());
+        log.debug("Found {} pending outbox events", pendingEvents.size());
 
         for (OutboxEvent outboxEvent : pendingEvents) {
             try {
@@ -39,6 +39,8 @@ public class ProcessOutboxUseCase {
                         .payload(outboxEvent.getPayload())
                         .timestamp(outboxEvent.getCreatedAt())
                         .build();
+
+                log.debug("Processing outbox event: id={}, payload={}", outboxEvent.getId(), outboxEvent.getPayload());
 
                 // Publish to RabbitMQ
                 eventPublisherPort.publish(foodEvent);

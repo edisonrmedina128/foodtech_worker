@@ -5,12 +5,14 @@ import com.foodtech.kitchen.worker.foodtech_worker.domain.model.OutboxEvent;
 import com.foodtech.kitchen.worker.foodtech_worker.infrastructure.persistence.entity.OutboxEntity;
 import com.foodtech.kitchen.worker.foodtech_worker.infrastructure.persistence.repository.JpaOutboxRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OutboxRepositoryAdapter implements OutboxRepositoryPort {
@@ -19,7 +21,9 @@ public class OutboxRepositoryAdapter implements OutboxRepositoryPort {
 
     @Override
     public List<OutboxEvent> findPendingEvents(int limit) {
-        return jpaOutboxRepository.findPendingEvents(3, PageRequest.of(0, limit)) // Max attempts hardcoded to 3 for now or config
+        List<OutboxEntity> entities = jpaOutboxRepository.findPendingEvents(3, PageRequest.of(0, limit));
+        log.debug("Polled {} pending events from database", entities.size());
+        return entities
                 .stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
