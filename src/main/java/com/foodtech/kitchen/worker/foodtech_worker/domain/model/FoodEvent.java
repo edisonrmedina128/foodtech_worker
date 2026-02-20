@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class FoodEvent {
     private String eventId;
-    private String eventType; // e.g., "ORDER_CREATED", "ORDER_PREPARED"
-    private String payload;   // JSON payload or details
+    private String eventType;
+    private String payload;
     private LocalDateTime timestamp;
 }

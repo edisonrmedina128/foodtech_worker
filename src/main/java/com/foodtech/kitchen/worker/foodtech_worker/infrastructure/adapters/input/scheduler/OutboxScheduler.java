@@ -13,9 +13,10 @@ public class OutboxScheduler {
 
     private final ProcessOutboxUseCase processOutboxUseCase;
 
-    @Scheduled(fixedRate = 3000) // Runs every 3 seconds
+    @Scheduled(fixedRateString = "${foodtech.outbox.scheduler-rate:3000}")
     public void processOutbox() {
-        log.debug("Running outbox scheduler...");
+        log.debug("[Scheduler] Triggering outbox processing cycle at {}", java.time.LocalDateTime.now());
         processOutboxUseCase.processOutboxEvents();
+        log.debug("[Scheduler] Outbox processing cycle completed");
     }
 }
