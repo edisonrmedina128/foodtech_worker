@@ -58,3 +58,28 @@ base de datos y RabbitMQ.
 Conclusion: el Actuator generico no es suficiente. Se necesita un
 HealthIndicator propio que consulte el outbox y verifique el estado real
 del worker.
+
+---
+
+### Analisis critico — Actuator generico vs HealthIndicator propio
+
+| Criterio              | Actuator generico (IA)          | HealthIndicator propio (Humano)    |
+|-----------------------|---------------------------------|------------------------------------|
+| Conocimiento dominio  | Ninguno                         | Total — sabe del outbox y RabbitMQ |
+| Eventos FAILED        | No los ve                       | Los cuenta directamente            |
+| Eventos pendientes    | No los ve                       | Consulta OutboxRepositoryPort      |
+| Valor para operador   | Bajo — solo dice UP o DOWN      | Alto — diagnostico granular        |
+| Configuracion extra   | Ninguna                         | Baja — implementar una interfaz    |
+
+### Decision tomada
+
+Implementar un HealthIndicator propio integrado con Spring Boot Actuator.
+
+Justificacion tecnica: la interfaz HealthIndicator de Spring permite
+agregar conocimiento del dominio sin salirse del ecosistema oficial.
+Reutiliza los puertos existentes — OutboxRepositoryPort y EventPublisherPort
+— sin crear nuevas dependencias.
+
+Justificacion de negocio: el operador puede detectar en segundos si el
+worker esta acumulando eventos fallidos, sin necesidad de acceder a la
+base de datos ni revisar logs manualmente.
