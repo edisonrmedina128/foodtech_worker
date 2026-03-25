@@ -23,3 +23,38 @@ Usar Spring Boot Actuator (`/actuator/health`) sin configuración adicional.
 
 Pendiente: investigar si el Actuator genérico cubre las necesidades
 reales del dominio o si se necesita algo más específico.
+
+---
+
+### Investigacion humana — Spring HealthIndicator vs Actuator default
+
+Luego de que la IA propuso usar el Actuator generico, investigue si
+realmente cubre las necesidades del worker.
+
+Fuente 1 — Documentacion oficial Spring Boot Actuator
+https://docs.spring.io/spring-boot/reference/actuator/endpoints.html
+
+Lo que encontre: Actuator expone indicadores genericos por defecto —
+estado del disco, ping, conexion a base de datos. No tiene conocimiento
+del dominio. No sabe que existe un OutboxScheduler, no puede contar
+eventos en estado FAILED, no distingue entre NEW y SENT.
+
+Fuente 2 — Spring Boot Custom HealthIndicator
+https://docs.spring.io/spring-boot/reference/actuator/endpoints.html#actuator.health.writing-custom-health-indicators
+
+Lo que encontre: Spring permite implementar la interfaz HealthIndicator
+para crear indicadores propios que si entienden el dominio. El metodo
+health() devuelve un objeto Health con status y detalles personalizados.
+Se integra automaticamente con /actuator/health sin configuracion adicional.
+
+Fuente 3 — Health Check API Pattern (Chris Richardson)
+https://microservices.io/patterns/observability/health-check-api.html
+
+Lo que encontre: el patron establece que un health check debe reportar
+el estado de todas las dependencias criticas del servicio, no solo si
+el proceso esta vivo. Para el worker eso significa verificar: scheduler,
+base de datos y RabbitMQ.
+
+Conclusion: el Actuator generico no es suficiente. Se necesita un
+HealthIndicator propio que consulte el outbox y verifique el estado real
+del worker.
