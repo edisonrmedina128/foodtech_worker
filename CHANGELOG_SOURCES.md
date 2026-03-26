@@ -100,3 +100,36 @@ esta vivo o no.
 Problema identificado: si el status es DOWN el operador no sabe que
 fallo. No distingue si es RabbitMQ, la base de datos o el outbox.
 Una respuesta de un solo campo no permite diagnosticar nada.
+
+### Investigacion humana — Contrato de respuesta granular
+
+Investigue como deberia verse una respuesta de health check bien diseñada.
+
+Fuente 1 — IETF Draft: Health Check Response Format for HTTP APIs
+https://inadarei.github.io/rfc-health-check/
+
+Lo que encontre: el draft define un formato estandar donde la respuesta
+incluye un objeto "checks" con el estado de cada componente por separado.
+Cada componente reporta su propio status independientemente.
+
+Fuente 2 — Codigo propio: OutboxEntity
+El proyecto ya tiene los campos necesarios — status (NEW, SENT, FAILED)
+y attempts — para construir una respuesta significativa sin queries adicionales.
+
+Contrato disenado basado en la investigacion:
+
+  {
+    "status": "UP",
+    "components": {
+      "database": { "status": "UP" },
+      "rabbitmq": { "status": "UP" },
+      "outbox": {
+        "status": "UP",
+        "pendingEvents": 2,
+        "failedEvents": 0
+      }
+    }
+  }
+
+Con este contrato el operador sabe exactamente que esta fallando
+sin necesidad de abrir la base de datos ni revisar logs.
