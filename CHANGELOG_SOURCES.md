@@ -83,3 +83,20 @@ Reutiliza los puertos existentes — OutboxRepositoryPort y EventPublisherPort
 Justificacion de negocio: el operador puede detectar en segundos si el
 worker esta acumulando eventos fallidos, sin necesidad de acceder a la
 base de datos ni revisar logs manualmente.
+
+---
+
+## Dia 2 — Viernes 27/Mar/2026
+
+### Propuesta de la IA — Contrato de respuesta
+
+La IA propuso una respuesta minima para el endpoint:
+
+  { "status": "UP" }
+
+Argumento de la IA: con eso es suficiente para saber si el servicio
+esta vivo o no.
+
+Problema identificado: si el status es DOWN el operador no sabe que
+fallo. No distingue si es RabbitMQ, la base de datos o el outbox.
+Una respuesta de un solo campo no permite diagnosticar nada.
