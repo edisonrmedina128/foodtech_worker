@@ -252,3 +252,8 @@ Como operador, quiero que el health check muestre WARN si hay mas de
 10 eventos en FAILED, para actuar antes de que el problema escale.
 Criterio de aceptacion: si failedEvents >= 10 el status del outbox
 cambia a WARN.
+
+---
+
+Documento de Diseno Tecnico (Google Docs):
+https://docs.google.com/document/d/1YFqbINlNEKVJCz8Iez7pVKBtc7GVJuWaEqBaLLr9R7o/edit?tab=t.0
