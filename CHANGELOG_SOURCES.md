@@ -7,7 +7,7 @@ Sin código — diseño puro.
 
 ---
 
-## Día 1 — Lunes 23/Mar/2026
+## Dia 1 — Miercoles 25/Mar/2026
 
 ### Feature identificada
 Worker Health Check dentro del microservicio `foodtech_worker`.
@@ -86,7 +86,7 @@ base de datos ni revisar logs manualmente.
 
 ---
 
-## Dia 2 — Viernes 27/Mar/2026
+## Dia 2 — Jueves 26/Mar/2026
 
 ### Propuesta de la IA — Contrato de respuesta
 
@@ -154,3 +154,101 @@ Justificacion tecnica: reutiliza los campos que ya existen en OutboxEntity
 Justificacion de negocio: reduce el tiempo de diagnostico de un fallo
 de minutos a segundos — el operador no necesita acceso a la infraestructura
 para saber que esta fallando.
+
+---
+
+## Dia 3 — Viernes 27/Mar/2026
+
+### Propuesta de la IA — Donde poner la logica del health check
+
+La IA sugirió crear un HealthController que inyecte directamente
+JpaOutboxRepository y RabbitTemplate para hacer las verificaciones.
+
+Problema identificado: el proyecto ya usa arquitectura hexagonal —
+los controllers nunca tocan infraestructura directamente. Inyectar
+JPA y RabbitTemplate en un controller violaría el patron que
+ya existe en ProcessOutboxUseCase y ProcessEventUseCase.
+
+### Investigacion humana — Hexagonal Architecture aplicada al health check
+
+Fuente 1 — Hexagonal Architecture (Alistair Cockburn, autor original)
+https://alistair.cockburn.us/hexagonal-architecture/
+
+Lo que encontre: el principio central es que el dominio no depende
+de la infraestructura. Los adaptadores de entrada (controllers,
+schedulers) solo hablan con puertos — interfaces del dominio.
+
+Fuente 2 — Codigo propio del proyecto
+ProcessOutboxUseCase ya usa OutboxRepositoryPort y EventPublisherPort
+sin tocar JPA ni RabbitMQ directamente. El health check debe
+seguir el mismo patron.
+
+### Analisis critico — Controller directo (IA) vs Hexagonal (Humano)
+
+| Criterio                  | Controller directo (IA)    | Hexagonal (Humano)              |
+|---------------------------|----------------------------|---------------------------------|
+| Consistencia del proyecto | Rompe el patron existente  | Respeta el patron existente     |
+| Testabilidad              | Baja — acoplado a JPA      | Alta — puertos son interfaces   |
+| Reutilizacion             | No                         | Usa puertos que ya existen      |
+| Deuda tecnica             | Alta                       | Ninguna                         |
+
+### Decision tomada — Dia 3
+
+Crear WorkerHealthIndicator como adaptador de entrada que usa
+los puertos existentes OutboxRepositoryPort y EventPublisherPort.
+No se crean nuevas dependencias a infraestructura.
+
+
+### Propuesta de la IA — Seguridad del endpoint
+
+La IA sugirió exponer /actuator/health publicamente sin restricciones.
+
+Problema identificado: exponer el estado interno del sistema sin
+autenticacion revela informacion sensible — cuantos eventos estan
+fallando, si RabbitMQ esta caido. Un atacante puede usar eso para
+identificar ventanas de vulnerabilidad.
+
+### Investigacion humana — Seguridad en health check endpoints
+
+Fuente 1 — OWASP API Security Top 10: API3:2023
+https://owasp.org/API-Security/editions/2023/en/0xa3-broken-object-property-level-authorization/
+
+Lo que encontre: OWASP identifica la exposicion de propiedades
+internas del sistema como riesgo de seguridad. El detalle del
+health check (pendingEvents, failedEvents) no debe ser publico.
+
+Fuente 2 — Spring Boot Actuator Security
+https://docs.spring.io/spring-boot/reference/actuator/endpoints.html#actuator.endpoints.security
+
+Lo que encontre: Spring permite configurar acceso diferenciado.
+Con management.endpoint.health.show-details=when-authorized
+el status general es publico pero el detalle requiere autorizacion.
+
+### Analisis critico — Endpoint publico (IA) vs Acceso controlado (Humano)
+
+| Criterio               | Publico (IA)          | Controlado (Humano)              |
+|------------------------|-----------------------|----------------------------------|
+| Seguridad              | Riesgo OWASP API3     | Cumple minimo privilegio         |
+| Status general         | Publico               | Publico                          |
+| Detalle componentes    | Publico               | Solo usuarios autorizados        |
+| Configuracion          | Ninguna               | Una linea en application.properties |
+| Estandar referencia    | Ninguno               | OWASP API Security Top 10        |
+
+### Historias de Usuario finales
+
+HU-01
+Como operador del sistema, quiero hacer GET /actuator/health y obtener
+UP o DOWN de inmediato, para saber si el worker esta operativo sin
+revisar logs.
+Criterio de aceptacion: el endpoint responde en menos de 500ms.
+
+HU-02
+Como operador autenticado, quiero ver el estado de database, rabbitmq
+y outbox por separado, para identificar exactamente que esta fallando.
+Criterio de aceptacion: la respuesta incluye pendingEvents y failedEvents.
+
+HU-03
+Como operador, quiero que el health check muestre WARN si hay mas de
+10 eventos en FAILED, para actuar antes de que el problema escale.
+Criterio de aceptacion: si failedEvents >= 10 el status del outbox
+cambia a WARN.
