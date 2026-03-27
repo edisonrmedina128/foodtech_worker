@@ -133,3 +133,24 @@ Contrato disenado basado en la investigacion:
 
 Con este contrato el operador sabe exactamente que esta fallando
 sin necesidad de abrir la base de datos ni revisar logs.
+
+### Analisis critico — Respuesta simple (IA) vs Contrato granular (Humano)
+
+| Criterio               | Respuesta simple (IA)        | Contrato granular (Humano)         |
+|------------------------|------------------------------|------------------------------------|
+| Diagnostico en fallo   | Imposible                    | Inmediato por componente           |
+| Informacion de outbox  | No incluye                   | pendingEvents y failedEvents       |
+| Estandar de referencia | Ninguno                      | IETF Health Check Draft            |
+| Valor operacional      | Casi nulo                    | Alto                               |
+| Complejidad            | Muy baja                     | Baja                               |
+
+### Decision tomada — Dia 2
+
+Usar el contrato granular con tres componentes: database, rabbitmq y outbox.
+
+Justificacion tecnica: reutiliza los campos que ya existen en OutboxEntity
+(status, attempts) sin agregar queries nuevos al sistema.
+
+Justificacion de negocio: reduce el tiempo de diagnostico de un fallo
+de minutos a segundos — el operador no necesita acceso a la infraestructura
+para saber que esta fallando.
