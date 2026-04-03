@@ -2,7 +2,7 @@
 
 ## Feature: Worker Health Check — foodtech_worker
 
-## 1. PRD (Product Requirements Document)
+## 1. Product Requirements Document
 
 - Se investigó cómo estructurar un documento de requisitos técnicos para la feature de health check.
 - Se decidió usar Arquitectura Hexagonal y patrones de observabilidad de Spring Boot Actuator.
