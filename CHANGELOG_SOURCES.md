@@ -1,44 +1,61 @@
 # CHANGELOG_SOURCES.md
 
 ## Feature: Worker Health Check — foodtech_worker
-Bitácora de investigación. Compara fuentes IA vs documentación oficial. Sin código — diseño puro.
----
-## 1. PRD (Product Requirements Document)
 
-- Se investigó cómo estructurar un documento de requisitos técnicos para la feature de health check.
-- Se decidió usar Arquitectura Hexagonal y patrones de observabilidad de Spring Boot Actuator.
+Bitácora de investigación. Compara fuentes IA vs documentación oficial. Sin código — diseño puro.
+
+---
+
+## 1. Diseño de Feature
 
 ### a) Humano
+
+#### Qué es Arquitectura Hexagonal
 1. https://alistair.cockburn.us/hexagonal-architecture/
-2. https://microservices.io/patterns/observability/health-check-api.html
+
+#### Qué es Health Check API Pattern
+1. https://microservices.io/patterns/observability/health-check-api.html
+
+#### Diseño de software
+1. https://betweendata.io/posts/ports-and-adapters-spring/
 
 ### b) IA
-- Proporcionó una estructura base para organizar el documento.
+- Proporcionó una estructura base para organizar el contenido del documento.
 
 ---
 
 ## 2. Planteamiento del Problema
 
-- El worker procesa eventos cada 3 segundos pero si falla nadie se entera.
-- Si el scheduler se detiene, RabbitMQ se cae o la base de datos no responde, no existe ningún mecanismo de alerta.
-- Impacto: los eventos se acumulan sin detección, interrumpiendo la facturación.
-
 ### a) Humano
-1. https://microservices.io/patterns/observability/health-check-api.html
+
+#### Qué es el Outbox Pattern
+1. https://microservices.io/patterns/data/outbox.html
+
+#### Qué es un Scheduler
+1. https://docs.spring.io/spring-boot/reference/integration/scheduling.html
+
+#### Qué es RabbitMQ
+1. https://www.rabbitmq.com/tutorials/tutorial-one-java.html
 
 ### b) IA
-- Generó preguntas para profundizar en el problema: "¿Qué pasa si el scheduler se detiene?", "¿Cuántos eventos fallidos son aceptables?"
+- Generación de preguntas para profundizar en el problema: "¿Qué pasa si el scheduler se detiene?", "¿Cuántos eventos fallidos son aceptables?"
 
 ---
 
 ## 3. Historias de Usuario
 
-- Se definieron HU con criterios de aceptación claros para validar el desarrollo.
-- Se priorizaron las HU que generan mayor valor operativo.
-
 ### a) Humano
+
+#### Qué es
 1. https://www.atlassian.com/es/agile/project-management/user-stories
-2. https://www.atlassian.com/es/work-management/project-management/acceptance-criteria
+
+#### Criterios de aceptación
+1. https://www.atlassian.com/es/work-management/project-management/acceptance-criteria
+2. https://resources.scrumalliance.org/Article/need-know-acceptance-criteria
+
+#### Definition of Done
+1. https://www.atlassian.com/es/agile/project-management/definition-of-done
+2. https://www.scrumio.com/scrum/definicion-de-hecho
 
 ### b) IA
 - Proporcionó HU enfocadas en verificar si el servicio está operativo.
@@ -47,27 +64,28 @@ Bitácora de investigación. Compara fuentes IA vs documentación oficial. Sin c
 
 ## 4. Spring Boot Actuator
 
-- Se leyó la documentación oficial para entender las capacidades del componente por defecto.
-- Limitaciones identificadas: no conoce el dominio del worker, no sabe qué es un OutboxScheduler, no puede contar eventos FAILED ni distinguir entre NEW y SENT.
-
 ### a) Humano
+
+#### Documentación oficial
 1. https://docs.spring.io/spring-boot/reference/actuator/endpoints.html
 2. https://docs.spring.io/spring-boot/reference/actuator/endpoints.html#actuator.health.writing-custom-health-indicators
-3. https://www.baeldung.com/spring-boot-health-indicators
+
+#### Fuentes complementarias
+1. https://www.baeldung.com/spring-boot-health-indicators
+2. https://www.amitph.com/custom-health-check-spring-boot-actuator/
+3. https://fabianlee.org/2022/06/29/java-adding-custom-health-indicator-to-spring-boot-actuator/
 
 ### b) IA
-1. https://learn.microsoft.com/en-us/azure/role-based-access-control/overview
+1. *(Fuera del alcance)* https://learn.microsoft.com/en-us/azure/role-based-access-control/overview
 2. *(Alucinación)* https://www.atlassian.com/work-management/product-management/product-requirements
-- Propuso usar el Actuator por defecto.
 
 ---
 
 ## 5. Custom HealthIndicator
 
-- Se investigó cómo extender el Actuator con un HealthIndicator personalizado.
-- Spring permite implementar la interfaz HealthIndicator para agregar lógica de negocio al health check.
-
 ### a) Humano
+
+#### Cómo crear un HealthIndicator propio
 1. https://docs.spring.io/spring-boot/reference/actuator/endpoints.html#actuator.health.writing-custom-health-indicators
 2. https://www.baeldung.com/spring-boot-health-indicators
 3. https://docs.spring.io/spring-boot/api/java/org/springframework/boot/actuate/health/AbstractHealthIndicator.html
@@ -79,12 +97,14 @@ Bitácora de investigación. Compara fuentes IA vs documentación oficial. Sin c
 
 ## 6. Arquitectura Hexagonal
 
-- Se estudió cómo integrar el health check respetando la arquitectura existente del proyecto.
-- Principio: el dominio no depende de la infraestructura. La solución debe usar los puertos existentes.
-
 ### a) Humano
+
+#### Qué es Arquitectura Hexagonal
 1. https://alistair.cockburn.us/hexagonal-architecture/
 2. https://betweendata.io/posts/ports-and-adapters-spring/
+
+#### Ports & Adapters
+1. https://refactoring.guru/design-patterns
 
 ### b) IA
 - Propuso acceder directamente a JPA y RabbitTemplate desde un Controller.
@@ -93,11 +113,11 @@ Bitácora de investigación. Compara fuentes IA vs documentación oficial. Sin c
 
 ## 7. Contrato de Respuesta
 
-- Se buscó un estándar que permita diagnóstico por componente.
-- El estándar IETF draft-inadarei-api-health-check define que cada componente reporta su status independientemente.
-
 ### a) Humano
+
+#### Estándar IETF para health check
 1. https://tools.ietf.org/id/draft-inadarei-api-health-check-06.html
+2. https://datatracker.ietf.org/doc/rfc9457/
 
 ### b) IA
 - Propuso una respuesta mínima con solo status global.
@@ -106,12 +126,13 @@ Bitácora de investigación. Compara fuentes IA vs documentación oficial. Sin c
 
 ## 8. Seguridad del Endpoint
 
-- Se investigó cómo proteger el endpoint para evitar filtrar información sensible.
-- OWASP API3:2023 identifica la exposición de propiedades internas como riesgo de seguridad.
-
 ### a) Humano
+
+#### OWASP API3:2023
 1. https://owasp.org/API-Security/editions/2023/en/0xa3-broken-object-property-level-authorization/
-2. https://docs.spring.io/spring-boot/reference/actuator/endpoints.html#actuator.endpoints.security
+
+#### Configuración de seguridad en Spring
+1. https://docs.spring.io/spring-boot/reference/actuator/endpoints.html#actuator.endpoints.security
 
 ### b) IA
 - No propuso medidas de seguridad para el endpoint.
@@ -120,11 +141,11 @@ Bitácora de investigación. Compara fuentes IA vs documentación oficial. Sin c
 
 ## 9. Diseño de Software
 
-- Se documentó la solución: WorkerHealthIndicator como Driver Adapter y HealthCheckUseCase como Application Service.
-- Componentes reutilizados: OutboxRepositoryPort, EventPublisherPort y OutboxEntity.
-
 ### a) Humano
+
+#### Diseño de software
 1. https://alistair.cockburn.us/hexagonal-architecture/
+2. https://betweendata.io/posts/ports-and-adapters-spring/
 
 ### b) IA
 - Propuso un diseño basado en Controllers que acceden directamente a infraestructura.
@@ -133,11 +154,11 @@ Bitácora de investigación. Compara fuentes IA vs documentación oficial. Sin c
 
 ## 10. Modelado de Estados
 
-- Se definió que failedEvents >= 10 debe mostrar WARN, failedEvents >= 20 debe mostrar DOWN.
-- Se consideró incluir lastProcessedAt para detectar si el scheduler se detuvo.
-
 ### a) Humano
+
+#### Diagrama de estados
 1. https://www.lucidchart.com/pages/es/diagrama-de-maquina-de-estados
+2. https://miro.com/es/diagrama/que-es-diagrama-maquina-estados-uml/
 
 ### b) IA
 - No propuso un modelo de estados específico para los componentes.
@@ -146,19 +167,9 @@ Bitácora de investigación. Compara fuentes IA vs documentación oficial. Sin c
 
 ## 11. Decisiones Técnicas (ADR)
 
-**Decisión 1:** HealthIndicator propio en lugar de Actuator genérico
-- Justificación: Permite contar eventos failed y dar diagnóstico granular.
-
-**Decisión 2:** Contrato de respuesta granular basado en IETF
-- Justificación: Permite diagnosticar qué componente falló sin revisar logs.
-
-**Decisión 3:** Usar puertos existentes en lugar de inyectar infraestructura
-- Justificación: Mantiene consistencia con la arquitectura hexagonal.
-
-**Decisión 4:** Seguridad show-details=when-authorized
-- Justificación: Previene exposición de información sensible.
-
 ### a) Humano
+
+#### ADR - Architecture Decision Records
 1. https://alistair.cockburn.us/hexagonal-architecture/
 2. https://microservices.io/patterns/observability/health-check-api.html
 
@@ -169,18 +180,11 @@ Bitácora de investigación. Compara fuentes IA vs documentación oficial. Sin c
 
 ## 12. Análisis de Riesgos
 
-**Riesgo de seguridad:** Exponer el endpoint públicamente revela información sobre la infraestructura.
-
-**Riesgo de disponibilidad:** Si el scheduler se detiene, los eventos se acumulan sin detección.
-
-**Riesgo de consistencia:** Un health check que reporta UP cuando el worker está caído genera falsa confianza.
-
-**Riesgo de rendimiento:** Queries lentas podrían hacer del endpoint un cuello de botella.
-
-**Riesgo de cascada:** Un componente caído podría afectar la capacidad del health check de responder.
-
 ### a) Humano
+
+#### Análisis de riesgos
 1. https://owasp.org/www-project-top-ten/
+2. https://microservices.io/patterns/observability/health-check-api.html
 
 ### b) IA
 - No se identificaron riesgos específicos desde esta perspectiva.
