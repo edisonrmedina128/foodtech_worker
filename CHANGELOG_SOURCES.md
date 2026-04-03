@@ -1,13 +1,8 @@
 # CHANGELOG_SOURCES.md
 
 ## Feature: Worker Health Check — foodtech_worker
-
-### Autor: Edison Reinoso
-
 Bitácora de investigación. Compara fuentes IA vs documentación oficial. Sin código — diseño puro.
-
 ---
-
 ## 1. PRD (Product Requirements Document)
 
 - Se investigó cómo estructurar un documento de requisitos técnicos para la feature de health check.
