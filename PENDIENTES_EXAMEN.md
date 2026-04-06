@@ -29,11 +29,11 @@
 
 Escenarios a cubrir:
 
-- [ ] `GET /actuator/health` responde `200` y status `UP` con todos los componentes sanos
-- [ ] `GET /actuator/health` responde `200` y status `WARN` cuando `failedEvents >= 10`
-- [ ] `GET /actuator/health` responde `503` y status `DOWN` cuando `failedEvents >= 20`
-- [ ] `GET /actuator/health` responde `503` y status `DOWN` cuando el scheduler lleva > 30s sin correr
-- [ ] La respuesta siempre incluye `components.workerOutbox.details` con `pendingEvents`, `failedEvents`, `lastProcessedAt`
+- [x] `GET /actuator/health` responde `200` y status `UP` con todos los componentes sanos
+- [x] `GET /actuator/health` responde `200` y status `WARN` cuando `failedEvents >= 10`
+- [x] `GET /actuator/health` responde `503` y status `DOWN` cuando `failedEvents >= 20`
+- [x] `GET /actuator/health` responde `503` y status `DOWN` cuando el scheduler lleva > 30s sin correr
+- [x] La respuesta siempre incluye `components.workerOutbox.details` con `pendingEvents`, `failedEvents`, `lastProcessedAt`
 
 **Stack sugerido**: REST Assured + Screenplay pattern (Tasks / Questions / Abilities)
 
@@ -51,8 +51,8 @@ features/     → WorkerHealthCheck.feature (Gherkin)
 **Prioridad: MEDIA** — la feature es un API puro (no tiene UI propia).
 
 Opciones:
-- [ ] Opción A: Agregar una página/pantalla de monitoreo en el frontend existente que consuma el endpoint y mostrar el estado — luego automatizar esa pantalla con POM/Screenplay Front.
-- [ ] Opción B: Documentar y justificar en la sustentación que esta feature es backend-only y que la cobertura E2E se hace 100% vía API Screenplay.
+- [x] Opción A: Agregar una página/pantalla de monitoreo en el frontend existente que consuma el endpoint y mostrar el estado — luego automatizar esa pantalla con POM/Screenplay Front.
+- [x] Opción B: Documentar y justificar en la sustentación que esta feature es backend-only y que la cobertura E2E se hace 100% vía API Screenplay.
 
 > 💡 **Recomendación**: Si el proyecto base ya tiene un frontend, agregar una pequeña vista de "Estado del Worker" y automatizarla. Si no, defender la opción B oralmente.
 
@@ -60,9 +60,9 @@ Opciones:
 
 ### 3. PR / Merge de la rama
 
-- [ ] Abrir Pull Request de `001-worker-health-check` → `main` (o la rama base del proyecto)
-- [ ] Incluir en la descripción del PR el Constitution Check (ya está en `plan.md`)
-- [ ] El PR debe estar listo antes de la sustentación
+- [x] Abrir Pull Request de `001-worker-health-check` → `main` (o la rama base del proyecto)
+- [x] Incluir en la descripción del PR el Constitution Check (ya está en `plan.md`)
+- [x] El PR debe estar listo antes de la sustentación
 
 ---
 
