@@ -34,6 +34,11 @@ public class OutboxRepositoryAdapter implements OutboxRepositoryPort {
         jpaOutboxRepository.save(toEntity(event));
     }
 
+    @Override
+    public long countByStatus(String status) {
+        return jpaOutboxRepository.countByStatus(status);
+    }
+
     private OutboxEvent toDomain(OutboxEntity entity) {
         return OutboxEvent.builder()
                 .id(entity.getId())

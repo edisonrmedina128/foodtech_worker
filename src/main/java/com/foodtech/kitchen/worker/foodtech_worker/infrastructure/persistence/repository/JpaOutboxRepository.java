@@ -14,4 +14,6 @@ public interface JpaOutboxRepository extends JpaRepository<OutboxEntity, UUID> {
 
     @Query("SELECT e FROM OutboxEntity e WHERE e.status = 'NEW' OR (e.status = 'FAILED' AND e.attempts < :maxAttempts)")
     List<OutboxEntity> findPendingEvents(int maxAttempts, Pageable pageable);
+
+    long countByStatus(String status);
 }
