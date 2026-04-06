@@ -7,4 +7,5 @@ import java.util.List;
 public interface OutboxRepositoryPort {
     List<OutboxEvent> findPendingEvents(int limit);
     void save(OutboxEvent event);
+    long countByStatus(String status);
 }

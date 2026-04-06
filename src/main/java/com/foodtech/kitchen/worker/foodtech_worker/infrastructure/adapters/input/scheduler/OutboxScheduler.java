@@ -12,11 +12,14 @@ import org.springframework.stereotype.Component;
 public class OutboxScheduler {
 
     private final ProcessOutboxUseCase processOutboxUseCase;
+    private final SchedulerTracker schedulerTracker;
 
     @Scheduled(fixedRateString = "${foodtech.outbox.scheduler-rate:3000}")
     public void processOutbox() {
         log.debug("[Scheduler] Triggering outbox processing cycle at {}", java.time.LocalDateTime.now());
         processOutboxUseCase.processOutboxEvents();
+        schedulerTracker.recordExecution();
         log.debug("[Scheduler] Outbox processing cycle completed");
     }
 }
+
