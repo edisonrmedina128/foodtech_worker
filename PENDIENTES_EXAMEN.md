@@ -147,7 +147,7 @@ src/test/java/.../infrastructure/adapters/input/scheduler/
   - Copiar solo el JAR final, no el source code
 - [x] Crear `.dockerignore` (excluir `.git`, `build/`, `.gradle/`, etc.)
 - [x] Verificar que `docker build` genera imagen funcional
-- [ ] Agregar `docker scout` o `trivy` scan para vulnerabilidades (evidencia de análisis)
+- [x] Agregar `docker scout` o `trivy` scan para vulnerabilidades (evidencia de análisis)
 
 > 🎯 **Qué podemos hacer**: Crear el Dockerfile multi-stage completo y el `.dockerignore`. El scan de vulnerabilidades se puede agregar como step en el pipeline.
 
@@ -159,7 +159,7 @@ src/test/java/.../infrastructure/adapters/input/scheduler/
   - **Job 3: `build-and-scan`** — build Docker + análisis de vulnerabilidades
 - [x] El pipeline debe bloquearse en PR si cualquier job falla
 - [x] Publicar reporte JaCoCo como artifact del pipeline
-- [ ] Badge de estado en README
+- [x] Badge de estado en README
 
 > 🎯 **Qué podemos hacer**: Generar el YAML completo. Ya tenemos el esqueleto base en este archivo. Solo falta separar en jobs y agregar el Docker scan.
 
