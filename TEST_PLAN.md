@@ -36,7 +36,7 @@ Validar que el endpoint `GET /actuator/health` refleje correctamente el estado d
 |-------|-------------|------|-------|-------------|
 | **TS-01** Unit Suite | JUnit 5 + Mockito | Caja Blanca | 24 | `./gradlew test` |
 | **TS-02** Integration Suite | Spring Boot Test | Componente | 3 | `./gradlew test -PincludeIntegration` |
-| **TS-03** Black-Box Suite | Serenity BDD + REST Assured | Caja Negra | 5 | `AUTO_API_SCREENPLAY` |
+| **TS-03** Black-Box Suite | Serenity BDD + REST Assured | Caja Negra | **10 (CP-01 a CP-10)** | `AUTO_API_SCREENPLAY` |
 
 ---
 
@@ -97,11 +97,16 @@ Validar que el endpoint `GET /actuator/health` refleje correctamente el estado d
 
 | ID | Escenario | Precondición | Entrada | Resultado esperado | HTTP |
 |----|-----------|-------------|---------|-------------------|------|
-| TC-B01 | Worker completamente sano | BD y Rabbit UP, 0 failed events | `GET /actuator/health` | `status: UP`, 3 componentes presentes, `workerOutbox.details` incluye las 3 métricas | 200 |
-| TC-B02 | WARN por failed events | 10 eventos FAILED en BD | `GET /actuator/health` | `status: WARN`, `workerOutbox.status: WARN`, reason menciona "10 >= 10" | 200 |
-| TC-B03 | DOWN por failed events críticos | 20 eventos FAILED en BD | `GET /actuator/health` | `status: DOWN`, `workerOutbox.status: DOWN`, reason menciona "20 >= 20" | 503 |
-| TC-B04 | DOWN por scheduler detenido | Scheduler sin correr > 30s | `GET /actuator/health` | `status: DOWN`, reason contiene "Scheduler stalled" y segundos transcurridos | 503 |
-| TC-B05 | Fresh startup sin procesamiento | Worker recién iniciado | `GET /actuator/health` | `status: UP`, `lastProcessedAt: null`, reason "No events processed since last startup" | 200 |
+| CP-01 | Worker completamente sano | BD y Rabbit UP, 0 failed events | `GET /actuator/health` | `status: UP`, 3 componentes presentes, `workerOutbox.details` incluye `pendingEvents`, `failedEvents`, `lastProcessedAt` con `failedEvents: 0` | 200 |
+| CP-02 | WARN por failed events en umbral | 10 eventos FAILED en BD (= warnThreshold) | `GET /actuator/health` | `status: WARN`, `components.workerOutbox.status: WARN`, reason menciona threshold | 200 |
+| CP-03 | DOWN por failed events críticos | 20 eventos FAILED en BD (= downThreshold) | `GET /actuator/health` | `status: DOWN`, `components.workerOutbox.status: DOWN`, reason menciona threshold crítico | 503 |
+| CP-04 | DOWN por scheduler detenido | Scheduler sin ejecutar > 30s | `GET /actuator/health` | `status: DOWN`, reason contiene "Scheduler stalled" y segundos transcurridos | 503 |
+| CP-05 | DB caída — componente db DOWN | Contenedor Postgres detenido | `GET /actuator/health` | `status: DOWN`, `components.db.status: DOWN`, workerOutbox puede seguir UP o WARN | 503 |
+| CP-06 | RabbitMQ caído — componente rabbit DOWN | Contenedor RabbitMQ detenido | `GET /actuator/health` | `status: DOWN`, `components.rabbit.status: DOWN` | 503 |
+| CP-07 | Estructura de respuesta siempre completa | Worker en cualquier estado | `GET /actuator/health` | Body SIEMPRE incluye `components.workerOutbox.details` con los 3 keys: `pendingEvents`, `failedEvents`, `lastProcessedAt` | cualquiera |
+| CP-08 | Tiempo de respuesta bajo carga normal | Worker sano, carga operacional normal | `GET /actuator/health` | Respuesta completa en **< 500 ms** (medición con `time_total` de curl o similar) | 200 |
+| CP-09 | Independencia de componentes | BD caída, Rabbit caído, outbox sano | `GET /actuator/health` | `workerOutbox` mantiene su estado independientemente del estado de `db` y `rabbit` | 503 |
+| CP-10 | Fresh startup — null lastProcessedAt | Worker recién iniciado sin procesar eventos | `GET /actuator/health` | `status: UP`, `lastProcessedAt: null`, reason "No events processed since last startup" — **no DOWN** | 200 |
 
 ---
 

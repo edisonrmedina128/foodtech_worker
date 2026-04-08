@@ -117,7 +117,7 @@ src/test/java/.../infrastructure/adapters/input/scheduler/
 
 ### TESTING_STRATEGY.md
 
-- [ ] Crear `TESTING_STRATEGY.md` en la raíz del repo diferenciando:
+- [x] Crear `TESTING_STRATEGY.md` en la raíz del repo diferenciando:
   - **Verificar** (pruebas técnicas): que los puertos se llamen correctamente, que `OutboxHealthMetrics` aísle infraestructura, que los mocks sean precisos
   - **Validar** (reglas de negocio): que `failedEvents >= downThreshold` → DOWN, que scheduler detenido → DOWN, que `lastProcessedAt = null` → UP (no DOWN)
   - **QA (estrategia general)** vs **Testing (ejecución de scripts)**: explicar qué cubre cada nivel (unit → integration → E2E)
@@ -127,10 +127,10 @@ src/test/java/.../infrastructure/adapters/input/scheduler/
 
 ### JaCoCo — Reporte Automatizado de Cobertura
 
-- [ ] Agregar plugin `jacoco` a `build.gradle`
-- [ ] Configurar reporte HTML + XML con `jacocoTestReport`
-- [ ] Configurar `jacocoTestCoverageVerification` con mínimo 80% de cobertura de líneas y branches
-- [ ] Verificar que `./gradlew test jacocoTestReport` genera reporte en `build/reports/jacoco/`
+- [x] Agregar plugin `jacoco` a `build.gradle`
+- [x] Configurar reporte HTML + XML con `jacocoTestReport`
+- [x] Configurar `jacocoTestCoverageVerification` con mínimo 80% de cobertura de líneas y branches
+- [x] Verificar que `./gradlew test jacocoTestReport` genera reporte en `build/reports/jacoco/`
 - [ ] Captura de pantalla del reporte con 90%+ en verde
 
 > 🎯 **Qué podemos hacer**: Agregar las 10 líneas de configuración en `build.gradle` y ejecutar el reporte. Cero código de producción nuevo.
@@ -141,31 +141,31 @@ src/test/java/.../infrastructure/adapters/input/scheduler/
 
 ### Dockerfile — Infraestructura Inmutable
 
-- [ ] Crear `Dockerfile` en la raíz con:
+- [x] Crear `Dockerfile` en la raíz con:
   - Multi-stage: etapa `build` con Gradle y etapa `runtime` con JRE ligero (`eclipse-temurin:21-jre-alpine`)
   - Ejecución sin privilegios root (`USER appuser`)
   - Copiar solo el JAR final, no el source code
-- [ ] Crear `.dockerignore` (excluir `.git`, `build/`, `.gradle/`, etc.)
-- [ ] Verificar que `docker build` genera imagen funcional
+- [x] Crear `.dockerignore` (excluir `.git`, `build/`, `.gradle/`, etc.)
+- [x] Verificar que `docker build` genera imagen funcional
 - [ ] Agregar `docker scout` o `trivy` scan para vulnerabilidades (evidencia de análisis)
 
 > 🎯 **Qué podemos hacer**: Crear el Dockerfile multi-stage completo y el `.dockerignore`. El scan de vulnerabilidades se puede agregar como step en el pipeline.
 
 ### .github/workflows/ci.yml — Pipeline con Jobs Separados
 
-- [ ] Crear `.github/workflows/ci.yml` con **jobs separados**:
+- [x] Crear `.github/workflows/ci.yml` con **jobs separados**:
   - **Job 1: `unit-tests`** — ejecuta `./gradlew test` (pruebas sin Spring context)
   - **Job 2: `integration-tests`** — levanta Postgres + RabbitMQ como services y ejecuta tests de integración
   - **Job 3: `build-and-scan`** — build Docker + análisis de vulnerabilidades
-- [ ] El pipeline debe bloquearse en PR si cualquier job falla
-- [ ] Publicar reporte JaCoCo como artifact del pipeline
+- [x] El pipeline debe bloquearse en PR si cualquier job falla
+- [x] Publicar reporte JaCoCo como artifact del pipeline
 - [ ] Badge de estado en README
 
 > 🎯 **Qué podemos hacer**: Generar el YAML completo. Ya tenemos el esqueleto base en este archivo. Solo falta separar en jobs y agregar el Docker scan.
 
 ### TEST_PLAN.md — Informe Formal de Pruebas
 
-- [ ] Crear `TEST_PLAN.md` como informe técnico profesional con:
+- [x] Crear `TEST_PLAN.md` como informe técnico profesional con:
   - **Test Suites**: Unit Suite, Integration Suite, Black-Box Suite (Caja Negra)
   - **Test Plan**: alcance, enfoque, herramientas (JUnit 5, Mockito, JaCoCo)
   - **Test Cases**: tabla con ID, descripción, tipo (Caja Blanca/Negra), resultado esperado
@@ -184,8 +184,8 @@ src/test/java/.../infrastructure/adapters/input/scheduler/
 
 ### GitFlow Formal — Release a main
 
-- [ ] Crear rama `develop` desde `001-worker-health-check`
-- [ ] Abrir PR formal: `develop` → `main` (Release)
+- [x] Crear rama `develop` desde `001-worker-health-check`
+- [ ] Abrir PR formal: `develop` → `main` (Release) — **pendiente: abrir en GitHub web**
   - Descripción con: qué feature se entrega, checklist de QA, Constitution Check
   - Tag de versión semántico: `v1.0.0`
 - [ ] El PR debe disparar el pipeline y estar en verde antes del merge
