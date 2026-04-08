@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worker Health Monitor</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; min-height: 100vh; padding: 40px; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+    h1 { font-size: 1.6rem; color: #1a1a2e; margin-bottom: 24px; }
+    .status-row { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+    .status-label { font-size: .95rem; color: #555; }
+    .badge { padding: 6px 18px; border-radius: 20px; font-weight: 700; font-size: 1rem; letter-spacing: .5px; display: inline-block; }
+    .badge-UP   { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .badge-WARN { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+    .badge-DOWN { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .badge-loading { background: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
+    .metrics { border-top: 1px solid #e8e8e8; padding-top: 24px; }
+    .metrics h2 { font-size: 1rem; color: #555; margin-bottom: 16px; text-transform: uppercase; letter-spacing: .5px; }
+    .metric-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+    .metric-name { font-size: .9rem; color: #666; }
+    .metric-value { font-size: .95rem; font-weight: 600; color: #1a1a2e; }
+    .error-msg { color: #dc3545; font-size: .9rem; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 data-testid="worker-health-title">Worker Health Monitor</h1>
+
+    <div class="status-row">
+      <span class="status-label">Status:</span>
+      <span id="statusBadge" data-testid="health-status-badge" class="badge badge-loading">Loading...</span>
+    </div>
+
+    <div class="metrics">
+      <h2>Outbox Metrics</h2>
+      <div class="metric-row">
+        <span class="metric-name">Pending Events</span>
+        <span id="pendingEvents" class="metric-value" data-testid="pending-events-value">&#x2014;</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-name">Failed Events</span>
+        <span id="failedEvents" class="metric-value" data-testid="failed-events-value">&#x2014;</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-name">Last Processed At</span>
+        <span id="lastProcessedAt" class="metric-value" data-testid="last-processed-at-value">&#x2014;</span>
+      </div>
+    </div>
+
+    <p id="errorMsg" class="error-msg" style="display:none"></p>
+  </div>
+
+  <script>
+    (function loadHealth() {
+      fetch('/actuator/health')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          var badge = document.getElementById('statusBadge');
+          var status = data.status || 'UNKNOWN';
+          badge.textContent = status;
+          badge.className = 'badge badge-' + status;
+
+          var outbox = data.components && data.components.workerOutbox;
+          var details = outbox && outbox.details;
+
+          document.getElementById('pendingEvents').textContent =
+            details && details.pendingEvents !== undefined ? details.pendingEvents : '\u2014';
+          document.getElementById('failedEvents').textContent =
+            details && details.failedEvents !== undefined ? details.failedEvents : '\u2014';
+          document.getElementById('lastProcessedAt').textContent =
+            details && details.lastProcessedAt !== undefined ? details.lastProcessedAt : '\u2014';
+        })
+        .catch(function(err) {
+          var badge = document.getElementById('statusBadge');
+          badge.textContent = 'ERROR';
+          badge.className = 'badge badge-DOWN';
+          var errEl = document.getElementById('errorMsg');
+          errEl.style.display = 'block';
+          errEl.textContent = 'Could not reach /actuator/health: ' + err.message;
+        });
+    })();
+  </script>
+</body>
+</html>
